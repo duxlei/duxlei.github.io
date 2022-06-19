@@ -123,40 +123,6 @@ tutorials.</p>
       <span class="n">postReq</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;http://localhost:4080/api/shop-crm/_doc&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">jsonData</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
       <span class="nb">print</span><span class="p">(</span><span class="n">get_current_time</span><span class="p">(),</span> <span class="n">jsonData</span><span class="p">)</span>
 </code></pre></div>
-
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nd">@Component</span><span class="w"></span>
-<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SaasUserTagSyncListener</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">ApplicationRunner</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-
-<span class="w">      </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">MESSAGE_ENCODING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Utf-8&quot;</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">      </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;shop.crm.saasUserTagSync.sub&quot;</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">subscription</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">      </span><span class="nd">@Autowired</span><span class="w"></span>
-<span class="w">      </span><span class="kd">private</span><span class="w"> </span><span class="n">SaasUserTagSyncService</span><span class="w"> </span><span class="n">saasUserTagSyncService</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">      </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">IConsumeCallback</span><span class="w"> </span><span class="n">consumeCallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messageExt</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">              </span><span class="c1">// 处理业务逻辑，完成后返回CONSUME_SUCCESS状态</span><span class="w"></span>
-<span class="w">              </span><span class="n">Message</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messageExt</span><span class="p">.</span><span class="na">getMessage</span><span class="p">();</span><span class="w"></span>
-<span class="w">              </span><span class="n">String</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="na">getData</span><span class="p">(),</span><span class="w"> </span><span class="n">MESSAGE_ENCODING</span><span class="p">);</span><span class="w"></span>
-<span class="w">              </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;SaaS客户标签同步消息，msg：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span><span class="w"></span>
-<span class="w">              </span><span class="n">SaasUserTagSyncBO</span><span class="w"> </span><span class="n">syncBo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">parseObject</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">SaasUserTagSyncBO</span><span class="p">.</span><span class="na">class</span><span class="p">);</span><span class="w"></span>
-<span class="w">              </span><span class="n">saasUserTagSyncService</span><span class="p">.</span><span class="na">syncUserTag</span><span class="p">(</span><span class="n">syncBo</span><span class="p">);</span><span class="w"></span>
-<span class="w">              </span><span class="k">return</span><span class="w"> </span><span class="n">ConsumeStatus</span><span class="p">.</span><span class="na">CONSUME_SUCCESS</span><span class="p">;</span><span class="w"></span>
-<span class="w">          </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">              </span><span class="k">return</span><span class="w"> </span><span class="n">ConsumeStatus</span><span class="p">.</span><span class="na">RECONSUME_LATER</span><span class="p">;</span><span class="w"></span>
-<span class="w">          </span><span class="p">}</span><span class="w"></span>
-<span class="w">      </span><span class="p">};</span><span class="w"></span>
-
-<span class="w">      </span><span class="nd">@Override</span><span class="w"></span>
-<span class="w">      </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">ApplicationArguments</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">          </span><span class="c1">// 创建推模式的消费者</span><span class="w"></span>
-<span class="w">          </span><span class="n">IPushConsumer</span><span class="w"> </span><span class="n">consumer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MercuryClient</span><span class="p">.</span><span class="na">createPushConsumer</span><span class="p">(</span><span class="n">subscription</span><span class="p">,</span><span class="w"> </span><span class="n">consumeCallback</span><span class="p">);</span><span class="w"></span>
-<span class="w">          </span><span class="n">consumer</span><span class="p">.</span><span class="na">start</span><span class="p">();</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-</code></pre></div>
     </div><!-- /.entry-content -->
 
   </article>
@@ -173,4 +139,4 @@ tutorials.</p>
         </footer><!-- /#contentinfo -->
 
 </body>
-</html>
+</html>\
